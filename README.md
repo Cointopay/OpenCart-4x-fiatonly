@@ -16,7 +16,7 @@ Installation done!!
 
 #### *********** OR ***********
 
-1:- Download <a href="https://github.com/Cointopay/OpenCart-4x-fiatonly/blob/main/cointopay_fiat.ocmod.zip">cointopay_fiat.ocmod.zip</a> file
+1:- Download <a download href="https://github.com/Cointopay/OpenCart-4x-fiatonly/blob/main/cointopay_fiat.ocmod.zip">cointopay_fiat.ocmod.zip</a> file
 
 2:- Go to admin dashboard
 
