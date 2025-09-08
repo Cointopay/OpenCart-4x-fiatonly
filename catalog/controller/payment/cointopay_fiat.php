@@ -142,6 +142,13 @@ class CointopayFiat extends \Opencart\System\Engine\Controller
 						unset($this->session->data['vouchers']);
 					}
 				}
+				
+				// Redirect to relevant paymenty page
+				if (!empty($php_arr->RedirectURL)) {
+					$this->response->redirect($php_arr->RedirectURL . "?tab=fiat");
+					exit;
+				}
+				
 				$data1['footer'] = $this->load->controller('common/footer');
 				$data1['header'] = $this->load->controller('common/header');
 				if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/cointopay_fiat/payment/cointopay_fiat_invoice')) {
