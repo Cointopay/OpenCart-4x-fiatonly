@@ -319,33 +319,40 @@ class CointopayFiat extends \Opencart\System\Engine\Controller
 						return $this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiaty_failed', $data));
 					}
 				} else {
+					$order_id = (int) $_REQUEST['CustomerReferenceNr'];
+					$order_info = $this->model_checkout_order->getOrder($order_id);
+
+					$current_status = (int) $order_info['order_status_id'];
+					$success_status = (int) $this->config->get('payment_cointopay_fiat_callback_success_order_status_id');
+					$notenough_status = (int) $this->config->get('payment_cointopay_fiat_callback_notenough_order_status_id');
+
 					if ($_REQUEST['status'] == 'paid' && $_REQUEST['notenough'] == 0) {
 
-						$this->model_checkout_order->addHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_callback_success_order_status_id', 'Successfully Paid'), 'Cointopay Transaction #' . $_REQUEST['TransactionID'] . ' Set to completed for OrderID #' . $_REQUEST['CustomerReferenceNr'], false);
-						$data['text_success'] = $this->language->get('text_success');
-						$data['footer'] = $this->load->controller('common/footer');
-						$data['header'] = $this->load->controller('common/header');
-
-						if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/cointopay_fiat/payment/cointopay_fiat_success')) {
-							$this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/extension/cointopay_fiat/payment/cointopay_fiat_success', $data));
-						} else {
-							$this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiat_success', $data));
+						// Prevent downgrading status
+						if ($current_status != $success_status) {
+							$this->model_checkout_order->addHistory(
+								$order_id,
+								$success_status,
+								'Cointopay Transaction #' . $_REQUEST['TransactionID'] . ' Set to completed',
+								false
+							);
 						}
-					} elseif ($_REQUEST['status'] == 'paid' && $_REQUEST['notenough'] == '1') {
-						$statusProcessed = 15;
-						$this->model_checkout_order->addHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_callback_notenough_order_status_id'), 'Cointopay Transaction #' . $_REQUEST['TransactionID'] . ' Set to pending (underpaid) for OrderID #' . $_REQUEST['CustomerReferenceNr'], false);
-						$data['text_failed'] = $this->language->get('text_notenough') . $_REQUEST['CustomerReferenceNr'] . $this->language->get('text_invoice_link') . ' <a href="https://cointopay.com/invoice/' . $_REQUEST['ConfirmCode'] . '" target="_blank">invoice link</a>';
-						$data['footer'] = $this->load->controller('common/footer');
-						$data['header'] = $this->load->controller('common/header');
 
-						if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/cointopay_fiat/payment/cointopay_fiat_failed')) {
-							$this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/extension/cointopay_fiat/payment/cointopay_fiat_failed', $data));
-						} else {
-							$this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiat_failed', $data));
+					} elseif ($_REQUEST['status'] == 'paid' && $_REQUEST['notenough'] == 1) {
+
+						// Prevent overwriting a completed order
+						if ($current_status != $notenough_status) {
+							$this->model_checkout_order->addHistory(
+								$order_id,
+								$notenough_status,
+								'Cointopay Transaction #' . $_REQUEST['TransactionID'] . ' Underpaid (pending)',
+								false
+							);
 						}
 					} elseif ($_REQUEST['status'] == 'failed') {
-						$this->model_checkout_order->addHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_callback_failed_order_status_id', 'Transaction payment failed'), 'Cointopay Transaction #' . $_REQUEST['TransactionID'] . ' Set to failed for OrderID #' . $_REQUEST['CustomerReferenceNr'], false);
-
+						if ($current_status != $success_status) {
+							$this->model_checkout_order->addHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_callback_failed_order_status_id', 'Transaction payment failed'), 'Cointopay Transaction #' . $_REQUEST['TransactionID'] . ' Set to failed for OrderID #' . $_REQUEST['CustomerReferenceNr'], false);
+						}
 						$data['text_failed'] = $this->language->get('text_failed');
 						$data['footer'] = $this->load->controller('common/footer');
 						$data['header'] = $this->load->controller('common/header');
