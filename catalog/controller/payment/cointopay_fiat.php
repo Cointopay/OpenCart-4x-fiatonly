@@ -309,7 +309,7 @@ class CointopayFiat extends \Opencart\System\Engine\Controller
 					} else {
 						return $this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiat_failed', $data));
 					}
-				} elseif ($transactionData['data']['Status'] != $_REQUEST['status'] && $_REQUEST['notenough'] == 0) {
+				} elseif ($transactionData['data']['Status'] != $_REQUEST['status'] && (isset($_REQUEST['notenough']) && $_REQUEST['notenough'] == 0)) {
 					$data = array();
 					$this->load->language('extension/cointopay_fiat/payment/cointopay_fiat_invoice');
 					$this->load->model('checkout/order');
@@ -319,6 +319,35 @@ class CointopayFiat extends \Opencart\System\Engine\Controller
 					} else {
 						$data['text_failed'] = "Data mismatch! status doesn\'t match. Your order status is " . $transactionData['data']['Status'];
 					}
+					$data['footer'] = $this->load->controller('common/footer');
+					$data['header'] = $this->load->controller('common/header');
+					if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . 'template/extension/cointopay_fiat/payment/cointopay_fiat_failed')) {
+						return $this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiat_failed', $data));
+					} else {
+						return $this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiat_failed', $data));
+					}
+				} elseif ($transactionData['data']['Status'] != $_REQUEST['status'] && (isset($_REQUEST['notenough']) && $_REQUEST['notenough'] == 1)) {
+					$data = array();
+					$this->load->language('extension/cointopay_fiat/payment/cointopay_fiat_invoice');
+					$this->load->model('checkout/order');
+					if ($transactionData['data']['Status'] == 'expired') {
+						$data['text_failed'] = $this->language->get('text_expired');
+						
+					} else {
+						$data['text_failed'] = "Data mismatch! status doesn\'t match. Your order status is " . $transactionData['data']['Status'];
+					}
+					$data['footer'] = $this->load->controller('common/footer');
+					$data['header'] = $this->load->controller('common/header');
+					if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . 'template/extension/cointopay_fiat/payment/cointopay_fiat_failed')) {
+						return $this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiat_failed', $data));
+					} else {
+						return $this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiat_failed', $data));
+					}
+				} elseif (isset($_REQUEST['notenough']) && $transactionData['data']['NotEnough'] != $_REQUEST['notenough']) {
+					$data = array();
+					$this->load->language('extension/cointopay_fiat/payment/cointopay_fiat_invoice');
+					$this->load->model('checkout/order');
+					$data['text_failed'] = "Data mismatch! status doesn\'t match. Your order status is " . $transactionData['data']['Status'];
 					$data['footer'] = $this->load->controller('common/footer');
 					$data['header'] = $this->load->controller('common/header');
 					if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . 'template/extension/cointopay_fiat/payment/cointopay_fiat_failed')) {
@@ -448,10 +477,10 @@ class CointopayFiat extends \Opencart\System\Engine\Controller
 							$this->response->setOutput($this->load->view('extension/cointopay_fiat/payment/cointopay_fiat_failed', $data));
 						}
 					} else {
-						$orderinfo = $this->model_localisation_order_status->getOrderStatus($cancel_status);
-						$this->model_checkout_order->addHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_callback_cancel_order_status_id'), 'Cointopay Transaction #' . $_REQUEST['TransactionID'] . ' Set to ' . $orderinfo['name'] . ' for OrderID #' . $_REQUEST['CustomerReferenceNr'], false);
+						//$orderinfo = $this->model_localisation_order_status->getOrderStatus($cancel_status);
+						//$this->model_checkout_order->addHistory($_REQUEST['CustomerReferenceNr'], $this->config->get('payment_cointopay_fiat_callback_cancel_order_status_id'), 'Cointopay Transaction #' . $_REQUEST['TransactionID'] . ' Set to ' . $orderinfo['name'] . ' for OrderID #' . $_REQUEST['CustomerReferenceNr'], false);
 
-						$data['text_failed'] = $this->language->get('text_cancel');
+						$data['text_failed'] = "Data mismatch!";
 						$data['footer'] = $this->load->controller('common/footer');
 						$data['header'] = $this->load->controller('common/header');
 
