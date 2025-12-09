@@ -201,21 +201,35 @@
     </div>
 </div>
 <script type="text/javascript">
-	{% if cointopay_fiat_merchantID is not empty  and  cointopay_fiat_crypto_coin is empty %}
-		$(document).ready(function(){
-			getMerchantCoin('{{ cointopay_fiat_merchantID }}');
-		});
-	{% endif %}
-	function getMerchantCoin(merchantId)
-	{
-		$.ajax({
-			url:'index.php?route=extension/cointopay_fiat/payment/cointopay_fiat|getMerchantCoinsByAjax&user_token={{ user_token }}',
-			type:'post',
-			data:{merchantId:merchantId},
-			success:function(res){
-				$('#cointopay_fiat_crypto_coin').html(res);
-			}
-		});
-	}
+
+{% if cointopay_fiat_merchantID is not empty and cointopay_fiat_crypto_coin is empty %}
+$(document).ready(function () {
+
+    // Initial load
+    getMerchantCoin('{{ cointopay_fiat_merchantID }}');
+
+});
+{% endif %}
+
+function getMerchantCoin(merchantId) {
+    let secretCode  = $("#cointopay_fiat_securitycode").val();
+    $.ajax({
+        url: 'index.php?route=extension/cointopay_fiat/payment/cointopay_fiat|getMerchantCoinsByAjax&user_token={{ user_token }}',
+        type: 'post',
+        data: {
+            merchantId: merchantId,
+            secret_code: secretCode
+        },
+        success: function (res) {
+            $('#cointopay_fiat_crypto_coin').html(res);
+        },
+        error: function (xhr) {
+            console.log("AJAX ERROR:", xhr.responseText);
+        }
+    });
+
+}
+
 </script>
+
 {{ footer }}
