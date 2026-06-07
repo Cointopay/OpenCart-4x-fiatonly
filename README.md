@@ -34,7 +34,7 @@ Installation done!!
 
 3:- Choose the extension type (Payments)
 
-4:- Find Cointopay International B.V. Fiat in the Payments list
+4:- Find Cointopay Fiat in the Payments list
 
 5:- Click on Plus(+) icon to install and click on edit(pencil) icon to configuration.
 
